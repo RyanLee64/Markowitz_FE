@@ -5,7 +5,7 @@ import cvxopt as opt
 from cvxopt import blas, solvers
 import pandas as pd
 
-NUM_PORTFOLIOS = 1000000
+NUM_PORTFOLIOS = 10000
 NUM_STOCKS = 20
 SHEET_NAME = 'returns'
 RISK_FREE_RATE = .02
@@ -22,7 +22,7 @@ def read_returns(xl_file, sheet ):
 
 def rand_weights(n):
     ''' Produces n rancdom weights that sum to 1 '''
-    k = np.random.randn(n)
+    k = np.random.rand(n)
    # print(k/sum(k))
     return k / sum(k)
 
@@ -30,7 +30,7 @@ def rand_weights(n):
 def find_optimal_risky(means, stds, weights):
     sharp_return = 0
     sharp_std = 0
-    sharp_rat = 0
+    sharp_rat = -1000000000
     sharp_weight = []
     for x, y, z in zip(means, stds, weights):
         if (x-RISK_FREE_RATE)/y > sharp_rat:
@@ -48,8 +48,8 @@ def rand_portfolio_stats(data_frame):
     weights = np.asmatrix(rand_weights(NUM_STOCKS))
     portfolio_avg = avg * weights.T
     sigma = np.sqrt(weights * cov * weights.T)
-    if (sigma > 5 or portfolio_avg < -1 or portfolio_avg > 1):
-        return rand_portfolio_stats(data_frame)
+    # if (sigma > 5 or portfolio_avg < -1 or portfolio_avg > 1):
+    #     return rand_portfolio_stats(data_frame)
     return portfolio_avg, sigma, weights
 
 
@@ -72,8 +72,14 @@ def main():
     plt.xlabel('std')
     plt.ylabel('mean')
     plt.title('Mean and standard deviation of returns of randomly generated portfolios')
-    print(opt_weights)
-    plt.show()
+    y = 0
+    for col in df.columns:
+        print(col, ((opt_weights.item(y))*100),'%')
+        y+=1
+
+
+
+    #plt.show()
 
 
 if __name__ == "__main__":
