@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import cvxopt as opt
 from cvxopt import blas, solvers
 import pandas as pd
+import sys
 
-NUM_PORTFOLIOS = 10000
+NUM_PORTFOLIOS = 1000000
 NUM_STOCKS = 20
 SHEET_NAME = 'returns'
 RISK_FREE_RATE = .02
@@ -64,6 +65,8 @@ def main():
         means.append(mean.item(0))
         stds.append(std.item(0))
         weights.append(weight)
+        if x%10000==0:
+            print(x, file=sys.stderr)
     opt_mean, opt_std, opt_weights = find_optimal_risky(means, stds, weights)
     fig = plt.figure()
     plt.plot(stds, means, 'o', markersize=5)
@@ -73,13 +76,14 @@ def main():
     plt.ylabel('mean')
     plt.title('Mean and standard deviation of returns of randomly generated portfolios')
     y = 0
+    print("-----------------------------")
     for col in df.columns:
         print(col, ((opt_weights.item(y))*100),'%')
         y+=1
+    print("-----------------------------")
 
+    plt.show()
 
-
-    #plt.show()
 
 
 if __name__ == "__main__":
