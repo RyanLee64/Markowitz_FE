@@ -1,18 +1,14 @@
 #%matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
-import cvxopt as opt
-from cvxopt import blas, solvers
 import pandas as pd
 import sys
 
-NUM_PORTFOLIOS = 1000000
+NUM_PORTFOLIOS = 10000000
 NUM_STOCKS = 20
 SHEET_NAME = 'returns'
-RISK_FREE_RATE = .02
-FILE_NAME = 'markowitz_assets.xlsx'
-# Turn off progress printing
-solvers.options['show_progress'] = False
+RISK_FREE_RATE = .00119
+FILE_NAME = 'mark_2.xlsx'
 
 
 def read_returns(xl_file, sheet ):
@@ -24,7 +20,6 @@ def read_returns(xl_file, sheet ):
 def rand_weights(n):
     ''' Produces n rancdom weights that sum to 1 '''
     k = np.random.rand(n)
-   # print(k/sum(k))
     return k / sum(k)
 
 
@@ -49,8 +44,6 @@ def rand_portfolio_stats(data_frame):
     weights = np.asmatrix(rand_weights(NUM_STOCKS))
     portfolio_avg = avg * weights.T
     sigma = np.sqrt(weights * cov * weights.T)
-    # if (sigma > 5 or portfolio_avg < -1 or portfolio_avg > 1):
-    #     return rand_portfolio_stats(data_frame)
     return portfolio_avg, sigma, weights
 
 
@@ -65,7 +58,7 @@ def main():
         means.append(mean.item(0))
         stds.append(std.item(0))
         weights.append(weight)
-        if x%10000==0:
+        if(x%10000 == 0):
             print(x, file=sys.stderr)
     opt_mean, opt_std, opt_weights = find_optimal_risky(means, stds, weights)
     fig = plt.figure()
@@ -77,14 +70,15 @@ def main():
     plt.title('Mean and standard deviation of returns of randomly generated portfolios')
     y = 0
     print("-----------------------------")
+    sum_weights = 0
     for col in df.columns:
         print(col, ((opt_weights.item(y))*100),'%')
+        sum_weights+=opt_weights.item(y)
         y+=1
-    print("-----------------------------")
 
+    print(sum_weights)
+    print("-----------------------")
     plt.show()
-
-
 
 if __name__ == "__main__":
     main()
